@@ -19,6 +19,7 @@ The most recent version of the README can be found at [https://ngc.nvidia.com/co
     + [4.1.1. Common](#411-common)
     + [4.1.2. OCI](#412-oci)
     + [4.1.3. AWS](#413-aws)
+    + [4.1.4. Kubernetes](#414-k8s)
   * [4.2. Cluster Validation](#42-cluster-validation)
     + [4.2.1. Validation Script Usage](#421-validation-script-usage)
     + [4.2.2 Running tests manually](#422-running-tests-manually)
@@ -32,12 +33,14 @@ The most recent version of the README can be found at [https://ngc.nvidia.com/co
     + [5.1.1. Prepare Environment](#511-prepare-environment)
       - [5.1.1.1. Slurm](#5111-slurm)
       - [5.1.1.2. Base Command Platform](#5112-base-command-platform)
-      - [5.1.1.3. General Configuration](#5113-general-configuration)
+      - [5.1.1.3. Kubernetes](#5113-kubernetes)
+      - [5.1.1.4. General Configuration](#5114-general-configuration)
     + [5.1.2. Data Preparation](#512-data-preparation)
       - [5.1.2.1. Data Preparation for GPT Models](#5121-data-preparation-for-gpt-models)
         * [5.1.2.1.1. Slurm](#51211-slurm)
         * [5.1.2.1.2. Base Command Platform](#51212-base-command-platform)
-        * [5.1.2.1.3. Common](#51213-common)
+        * [5.1.2.1.3. Kubernetes](#51213-kubernetes)
+        * [5.1.2.1.4. Common](#51214-common)
       - [5.1.2.2. Data Preparation for T5 Models](#5122-data-preparation-for-t5-models)
         * [5.1.2.2.1. Slurm](#51221-slurm)
         * [5.1.2.2.2. Base Command Platform](#51222-base-command-platform)
@@ -361,6 +364,11 @@ Figure 1: The GPT family architecture. The 5B variant includes 24 transformer la
 | HPC-X                   | 2.13             |
 | Base Command Manager    | 1.0.0            |
 | DeepOps                 | 21.06            |
+| Kubernetes              | >=1.21.4         |
+| Helm                    | >=3.6.3          |
+| GPU Operator            |                  |
+| Network Operator        |                  |
+| KubeFlow Operator       |                  |
 
 ## 4. Cloud Service Providers
 <a id="markdown-cloud-service-providers" name="cloud-service-providers"></a>
@@ -409,6 +417,23 @@ On the scheduler node:
 - Set the container path in `launcher_scripts/conf/config.yaml` to the new Enroot image:
 ```
 container: /path/to/nemo_megatron_launcher/nemo_megatron_training.sqsh
+```
+
+#### 4.1.4. Kubernetes
+<a id="markdown-k8s" name="k8s"></a>
+Data preparation and training GPT models is currently supported on vanilla kubernetes (k8s) clusters.
+The launcher scripts will generate a Helm chart for each task based on the config files and launch the job using the chart.
+
+The following is required for running jobs on Kubernetes:
+  * One or more DGX A100s/H100s as worker nodes
+  * An NFS filesystem where the data and launcher scripts will be stored which is accessible on all worker and controller nodes
+  * A head/controller node which has access to the worker nodes and can run `kubectl` and `helm` to launch jobs and can install Python dependencies
+  * Recent versions of the GPU, Network, and KubeFlow Operators installed
+
+A secret key needs to be configured to allow kubernetes to pull from the private registry. For example, if pulling the container directly
+from NGC, a secret needs to be created to authenticate with the private NGC registry, such as the following:
+```
+kubectl create secret docker-registry ngc-registry --docker-server=nvcr.io --docker-username=\$oauthtoken --docker-password=<NGC KEY HERE>
 ```
 
 ### 4.2. Cluster Validation
@@ -594,7 +619,22 @@ creating these workspaces (e.g. `nemo_megatron_data_ws` and `nemo_megatron_resul
 the Base Command Platform User Guide for how to create and work with Base 
 Command Platform workspaces.
 
-##### 5.1.1.3. General Configuration
+##### 5.1.1.3. Kubernetes
+<a id="markdown-kubernetes" name="kubernetes"></a>
+
+The launcher scripts need to be downloaded to the NFS filesystem that is
+connected to the worker nodes. This can either be copied at
+`/opt/NeMo-Megatron-Launcher` from inside the training container or by cloning
+this repository.
+
+Install the NeMo Framework scripts dependencies on the head node/controller of
+the cluster where jobs will be launched:
+
+```
+pip install -r requirements.txt
+```
+
+##### 5.1.1.4. General Configuration
 <a id="markdown-general-configuration" name="general-configuration"></a>
 
 The first parameter that must be set is the `launcher_scripts_path` parameter inside the
@@ -842,8 +882,36 @@ The command above assumes you want to prepare the entire dataset (files 0-29), a
 workspace in `/mount/data`, and the results workspace in `/mount/results`. Stdout and stderr are redirected to the `/results/data_gpt3_log.txt` file, so it can be downloaded from NGC. 
 Any other parameter can also be added to the command to modify its behavior.
 
-###### 5.1.2.1.3. Common
-<a id="markdown-41213-common" name="41213-common"></a>
+###### 5.1.2.1.3. Kubernetes
+<a id="markdown-51213-kubernetes" name="51213-kubernetes"></a>
+
+To run data preparation on a kubernetes cluster, set both the `cluster` and
+`cluster_type` parameters to `k8s` in `conf/config.yaml`. Additionally, set the
+`launcher_scripts_path` parameter to the location where the launcher scripts
+are located on the NFS filesystem. This must be the same path on all nodes in
+the cluster. Ensure the `stages` parameter is set to `data_preparation` and
+`data_preparation` in the `defaults` section points to the intended data
+preparation script.
+
+The `conf/config/k8s.yaml` file also needs to be updated with the
+kubernetes container registry secret if created earlier (`pull_secret`), the
+`shm_size` to determine how much local memory to put in each pod, and the NFS
+server and path to where the launcher scripts are saved. These can all be
+overridden from the command line using hydra as well.
+
+Once all of the config files are updated, the data preparation can be launched
+from the controller node with:
+
+```
+python main.py
+```
+
+This will generate and launch a job via Helm in the default namespace which
+can be viewed with `helm show` or `kubectl get pods`. The logs can be followed
+with `kubectl logs <pod-name>`.
+
+###### 5.1.2.1.4. Common
+<a id="markdown-51214-common" name="51214-common"></a>
 
 Set the configuration for the data preparation job for GPT models in the YAML file:
 ```yaml
