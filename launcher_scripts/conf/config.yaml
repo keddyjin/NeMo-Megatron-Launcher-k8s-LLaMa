@@ -1,7 +1,7 @@
 defaults:
   - _self_
   - cluster: k8s  # Set to bcm for BCM and BCP clusters. Set to k8s for a k8s cluster.
-  - data_preparation: gpt3/download_gpt3_pile
+  - data_preparation: llama/download_llama_pile
   - training: gpt3/126m
   - conversion: gpt3/convert_gpt3
   - fine_tuning: null
@@ -20,13 +20,16 @@ hydra:
 debug: False
 
 stages:
-  - training
+  - data_preparation
+    #- training
+    #- conversion
+    #- evaluation
+    #- export
 
 cluster_type: k8s  # bcm, bcp, or k8s. If bcm or k8s, it must match - cluster above.
-launcher_scripts_path: /home/ubuntu/eliu/NeMo-Megatron-Launcher/launcher_scripts  # Path to NeMo Megatron Launch scripts, should ends with /launcher_scripts
-data_dir: /egvejhj9/dataset  # Location to store and read the data.
-base_results_dir: /home/ubuntu/eliu/NeMo-Megatron-Launcher/launcher_scripts/results  # Location to store the results, checkpoints and logs.
-# base_results_dir: /egvejhj9/results  # Location to store the results, checkpoints and logs.
+launcher_scripts_path: /NV/NeMo-Megatron-Launcher-k8s-LLaMa/launcher_scripts  # Path to NeMo Megatron Launch scripts, should ends with /launcher_scripts
+data_dir: /NV/llama-dataset  # Location to store and read the data.
+base_results_dir: ${launcher_scripts_path}/results  # Location to store the results, checkpoints and logs.
 container_mounts: # List of additional paths to mount to container. They will be mounted to same path.
   - null
 container: nvcr.io/ea-bignlp/nemofw-training:23.05-py3
