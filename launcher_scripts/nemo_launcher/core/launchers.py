@@ -494,8 +494,9 @@ class K8SLauncher(Launcher):
         """
         paths = job_utils.JobPaths(folder=self.folder, job_name=self.job_name)
         helm_charts = paths.folder / 'k8s_template'
+        job_name = self.job_name.replace('_', '-')
 
-        return f'#!/bin/bash\nhelm install nemo-framework-training {helm_charts}\n'
+        return f'#!/bin/bash\nhelm install {job_name} {helm_charts}\n'
 
 
 @functools.lru_cache()
