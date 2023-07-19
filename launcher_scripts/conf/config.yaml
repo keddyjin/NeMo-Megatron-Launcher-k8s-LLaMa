@@ -5,10 +5,11 @@ defaults:
   - training: llama/7b
   - conversion: llama/convert_llama
   - fine_tuning: null
-  - prompt_learning: null
-  - adapter_learning: null
-  - ia3_learning: null
-  - evaluation: gpt3/evaluate_all
+  - prompt_learning: llama/squad
+  - adapter_learning: llama/squad
+  - ia3_learning: llama/squad
+    #- evaluation: llama/evaluate_all
+  - evaluation: prompt_llama/squad
   - export: gpt3/export_gpt3
   - override hydra/job_logging: stdout
 
@@ -20,21 +21,25 @@ hydra:
 debug: False
 
 stages:
-        #- data_preparation
-        #- training
+  #- data_preparation
+  #- training
   - conversion
-    #- evaluation
-    #- export
+  #- prompt_learning
+  #- adapter_learning
+  #- ia3_learning
+  #- evaluation
+  #- export
 
 cluster_type: k8s  # bcm, bcp, or k8s. If bcm or k8s, it must match - cluster above.
 launcher_scripts_path: /NV/NeMo-Megatron-Launcher-k8s-LLaMa/launcher_scripts  # Path to NeMo Megatron Launch scripts, should ends with /launcher_scripts
 data_dir: /NV/llama-dataset  # Location to store and read the data.
+nemo_dir: /NV/NeMo
 base_results_dir: ${launcher_scripts_path}/results  # Location to store the results, checkpoints and logs.
 container_mounts: # List of additional paths to mount to container. They will be mounted to same path.
   - null
 container: nvcr.io/ea-bignlp/nemofw-training:23.05-py3
 
-wandb_api_key_file: /lustre/fsw/devtech/hpc-devtech/hongbinl/nemo_megatron/NeMo-Megatron-Launcher/wandb_api_key  # File where the w&B api key is stored. Key must be on the first line.
+wandb_api_key_file: null  # File where the w&B api key is stored. Key must be on the first line.
 
 env_vars:
   NCCL_TOPO_FILE: null # Should be a path to an XML file describing the topology
