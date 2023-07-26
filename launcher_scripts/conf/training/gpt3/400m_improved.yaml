@@ -5,10 +5,10 @@ run:
   dependency: "singleton"
 
 trainer:
-  num_nodes: 8
-  devices: 8
+  num_nodes: 1
+  devices: 2
   accelerator: gpu
-  precision: bf16
+  precision: 16
   logger: False # logger provided by exp_manager
   enable_checkpointing: False
   replace_sampler_ddp: False
@@ -95,7 +95,7 @@ model:
   hysteresis: 2
   fp32_residual_connection: false
   fp16_lm_cross_entropy: false
-  megatron_amp_O2: true
+  megatron_amp_O2: false
   grad_allreduce_chunk_size_mb: 125
   grad_div_ar_fusion: true
   gradient_accumulation_fusion: false
@@ -153,63 +153,5 @@ model:
     eod_mask_loss: false
     index_mapping_dir: null
     data_prefix:
-      - .0333
+      - 1.0000
       - ${data_dir}/my-gpt3_00_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_01_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_02_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_03_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_04_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_05_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_06_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_07_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_08_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_09_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_10_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_11_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_12_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_13_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_14_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_15_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_16_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_17_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_18_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_19_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_20_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_21_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_22_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_23_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_24_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_25_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_26_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_27_text_document
-      - .0333
-      - ${data_dir}/my-gpt3_28_text_document
-      - .0334
-      - ${data_dir}/my-gpt3_29_text_document

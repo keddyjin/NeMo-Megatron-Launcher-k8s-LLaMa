@@ -1,8 +1,8 @@
 defaults:
   - _self_
-  - cluster: bcm  # Set to bcm for BCM and BCP clusters. Set to k8s for a k8s cluster.
+  - cluster: k8s  # Set to bcm for BCM and BCP clusters. Set to k8s for a k8s cluster.
   - data_preparation: gpt3/download_gpt3_pile
-  - training: gpt3/5b
+  - training: gpt3/126m
   - conversion: gpt3/convert_gpt3
   - fine_tuning: null
   - prompt_learning: null
@@ -22,10 +22,11 @@ debug: False
 stages:
   - training
 
-cluster_type: bcm  # bcm, bcp, or k8s. If bcm or k8s, it must match - cluster above.
-launcher_scripts_path: ???  # Path to NeMo Megatron Launch scripts, should ends with /launcher_scripts
-data_dir: ${launcher_scripts_path}/data  # Location to store and read the data.
-base_results_dir: ${launcher_scripts_path}/results  # Location to store the results, checkpoints and logs.
+cluster_type: k8s  # bcm, bcp, or k8s. If bcm or k8s, it must match - cluster above.
+launcher_scripts_path: /home/ubuntu/eliu/NeMo-Megatron-Launcher/launcher_scripts  # Path to NeMo Megatron Launch scripts, should ends with /launcher_scripts
+data_dir: /egvejhj9/dataset  # Location to store and read the data.
+base_results_dir: /home/ubuntu/eliu/NeMo-Megatron-Launcher/launcher_scripts/results  # Location to store the results, checkpoints and logs.
+# base_results_dir: /egvejhj9/results  # Location to store the results, checkpoints and logs.
 container_mounts: # List of additional paths to mount to container. They will be mounted to same path.
   - null
 container: nvcr.io/ea-bignlp/nemofw-training:23.05-py3
@@ -41,6 +42,8 @@ env_vars:
   NCCL_PROTO: null # Protocol NCCL will use. Set to "simple" for AWS
   TRANSFORMERS_OFFLINE: 1
   NCCL_AVOID_RECORD_STREAMS: 1
+  # LD_LIBRARY_PATH: /usr/local/lib/python3.8/dist-packages/torch/lib:/usr/local/lib/python3.8/dist-packages/torch_tensorrt/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+  # _CUDA_COMPAT_PATH: /usr/local/cuda/compat
 
 # GPU Mapping
 numa_mapping:
