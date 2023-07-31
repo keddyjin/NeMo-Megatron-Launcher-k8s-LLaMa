@@ -19,19 +19,13 @@ spec:
               - name: NCCL_AVOID_RECORD_STREAMS
                 value: "1"
             {{ if eq $config.wandbKey "nil" }}
-            command: ["torchrun"]
+            command: ["bash", "-c"]
             args:
-              - "--nnodes={{ .Values.image.nodes }}"
-              - "--rdzv-backend=c10d"
-              - "--rdzv-endpoint=nlp-training-worker-0"
-              - "--nproc_per_node={{ .Values.image.numGPUs }}"
-              - "/opt/NeMo/examples/nlp/language_modeling/megatron_gpt_pretraining.py"
-              - "--config-path=/config"
-              - "--config-name=config.yaml"
+              - "cp -af {{ $config.NeMoPath }}/. /opt/NeMo && torchrun --nnodes={{ .Values.image.nodes }} --rdzv-backend=c10d --rdzv-endpoint=nlp-training-worker-0 --nproc_per_node={{ .Values.image.numGPUs }} /opt/NeMo/examples/nlp/language_modeling/megatron_gpt_pretraining.py --config-path=/config --config-name=config.yaml"
             {{ else }}
             command: ["bash", "-c"]
             args:
-              - "wandb login {{ $config.wandbKey }} && torchrun --nnodes={{ .Values.image.nodes }} --rdzv-backend=c10d --rdzv-endpoint=nlp-training-worker-0 --nproc_per_node={{ .Values.image.numGPUs }} /opt/NeMo/examples/nlp/language_modeling/megatron_gpt_pretraining.py --config-path=/config --config-name=config.yaml"
+              - "wandb login {{ $config.wandbKey }} && cp -af {{ $config.NeMoPath }}/. /opt/NeMo && torchrun --nnodes={{ .Values.image.nodes }} --rdzv-backend=c10d --rdzv-endpoint=nlp-training-worker-0 --nproc_per_node={{ .Values.image.numGPUs }} /opt/NeMo/examples/nlp/language_modeling/megatron_gpt_pretraining.py --config-path=/config --config-name=config.yaml"
             {{ end }}
             imagePullPolicy: Always
             securityContext:

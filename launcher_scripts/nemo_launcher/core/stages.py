@@ -238,7 +238,7 @@ class NemoMegatronStage:
 
         cfg = self.cfg
         data_dir = cfg.get("data_dir")
-        nemo_dir = cfg.get("nemo_dir")
+        nemo_dir = cfg.get("nemo_dir", "/opt/NeMo")
         base_results_dir = cfg.get("base_results_dir")
         mounts_string = f"{self._launcher_scripts_path}:{self._launcher_scripts_path},{data_dir}:{data_dir},{base_results_dir}:{base_results_dir},{nemo_dir}:{nemo_dir}"
 
@@ -316,10 +316,14 @@ class NemoMegatronStage:
             k8s_cfg = {**copy.deepcopy(cluster_cfg)}
 
             cluster_parameters = {**k8s_cfg}
+            nemo_dir = cfg.get("nemo_dir", "/opt/NeMo")
+            if nemo_dir is None or len(nemo_dir) == 0:
+                nemo_dir = "/opt/NeMo"
             cluster_parameters.update(
                 {
                     **shared_parameters,
                     "container_image": container_image,
+                    "nemo_dir": nemo_dir,
                 }
             )
 
@@ -633,6 +637,7 @@ class NeMoStage(NemoMegatronStage):
         values_template.trainingConfig.NFSPath = cluster_parameters['nfs_path']
         values_template.trainingConfig.ibResourceName = cluster_parameters['ib_resource_name']
         values_template.trainingConfig.ibCount = cluster_parameters['ib_count']
+        values_template.trainingConfig.NeMoPath = cluster_parameters['nemo_dir']
 
         if self.cfg.wandb_api_key_file is not None:
             values_template.trainingConfig.wandbKey = self._add_wandb_key_to_chart()
