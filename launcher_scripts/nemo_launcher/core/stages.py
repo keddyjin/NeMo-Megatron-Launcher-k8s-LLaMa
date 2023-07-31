@@ -319,11 +319,13 @@ class NemoMegatronStage:
             nemo_dir = cfg.get("nemo_dir", "/opt/NeMo")
             if nemo_dir is None or len(nemo_dir) == 0:
                 nemo_dir = "/opt/NeMo"
+            launcher_dir = os.path.dirname(cfg.get("launcher_scripts_path", "/opt/NeMo-Megatron-Launcher/launcher_scripts").rstrip('/'))    
             cluster_parameters.update(
                 {
                     **shared_parameters,
                     "container_image": container_image,
                     "nemo_dir": nemo_dir,
+                    "launcher_dir": launcher_dir,
                 }
             )
 
@@ -638,6 +640,7 @@ class NeMoStage(NemoMegatronStage):
         values_template.trainingConfig.ibResourceName = cluster_parameters['ib_resource_name']
         values_template.trainingConfig.ibCount = cluster_parameters['ib_count']
         values_template.trainingConfig.NeMoPath = cluster_parameters['nemo_dir']
+        values_template.trainingConfig.LauncherPath = cluster_parameters['launcher_dir']
 
         if self.cfg.wandb_api_key_file is not None:
             values_template.trainingConfig.wandbKey = self._add_wandb_key_to_chart()
