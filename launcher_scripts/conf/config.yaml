@@ -2,7 +2,8 @@ defaults:
   - _self_
   - cluster: k8s  # Set to bcm for BCM and BCP clusters. Set to k8s for a k8s cluster.
   - data_preparation: llama/download_llama_pile
-  - training: llama/7b
+  - training: llama/162m
+  # - training: gpt3/126m
   - conversion: llama/convert_llama
   - fine_tuning: null
   - prompt_learning: llama/squad
@@ -21,9 +22,9 @@ hydra:
 debug: False
 
 stages:
-  #- data_preparation
-  #- training
-  - conversion
+  # - data_preparation
+  - training
+  # - conversion
   #- prompt_learning
   #- adapter_learning
   #- ia3_learning
@@ -31,10 +32,11 @@ stages:
   #- export
 
 cluster_type: k8s  # bcm, bcp, or k8s. If bcm or k8s, it must match - cluster above.
-launcher_scripts_path: /NV/NeMo-Megatron-Launcher-k8s-LLaMa/launcher_scripts  # Path to NeMo Megatron Launch scripts, should ends with /launcher_scripts
-data_dir: /NV/llama-dataset  # Location to store and read the data.
-nemo_dir: /NV/NeMo
-base_results_dir: ${launcher_scripts_path}/results  # Location to store the results, checkpoints and logs.
+launcher_scripts_path: /egvejhj9/NeMo-Megatron-Launcher-k8s-LLaMa/launcher_scripts  # Path to NeMo Megatron Launch scripts, should ends with /launcher_scripts
+# data_dir: /egvejhj9/dataset  # Location to store and read the data.
+data_dir: /egvejhj9/llama-dataset  # Location to store and read the data.
+nemo_dir: /egvejhj9/NeMo-support_llama  # Location of the customized NeMo code base path.
+base_results_dir: /egvejhj9/llama-results  # Location to store the results, checkpoints and logs.
 container_mounts: # List of additional paths to mount to container. They will be mounted to same path.
   - null
 container: nvcr.io/ea-bignlp/nemofw-training:23.05-py3
