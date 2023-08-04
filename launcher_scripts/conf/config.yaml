@@ -2,14 +2,14 @@ defaults:
   - _self_
   - cluster: k8s  # Set to bcm for BCM and BCP clusters. Set to k8s for a k8s cluster.
   - data_preparation: llama/download_llama_pile
+  #- training: gpt3/126m
   - training: llama/162m
-  # - training: gpt3/126m
   - conversion: llama/convert_llama
   - fine_tuning: null
   - prompt_learning: llama/squad
   - adapter_learning: llama/squad
   - ia3_learning: llama/squad
-    #- evaluation: llama/evaluate_all
+  #- evaluation: llama/evaluate_all
   - evaluation: prompt_llama/squad
   - export: gpt3/export_gpt3
   - override hydra/job_logging: stdout
@@ -32,24 +32,29 @@ stages:
   #- export
 
 cluster_type: k8s  # bcm, bcp, or k8s. If bcm or k8s, it must match - cluster above.
-launcher_scripts_path: /egvejhj9/NeMo-Megatron-Launcher-k8s-LLaMa/launcher_scripts  # Path to NeMo Megatron Launch scripts, should ends with /launcher_scripts
-# data_dir: /egvejhj9/dataset  # Location to store and read the data.
-data_dir: /egvejhj9/llama-dataset  # Location to store and read the data.
-nemo_dir: /egvejhj9/NeMo-support_llama  # Location of the customized NeMo code base path.
-base_results_dir: /egvejhj9/llama-results  # Location to store the results, checkpoints and logs.
+launcher_scripts_path: /root/NeMo-Megatron-Launcher-k8s-LLaMa/launcher_scripts  # Path to NeMo Megatron Launch scripts, should ends with /launcher_scripts
+#data_dir: /data/NemoTest/dataset  # Location to store and read the data.
+data_dir: /data/NemoTest/llama-data  # Location to store and read the data.
+nemo_dir: /data/NemoTest/NeMo-support_llama  # Location of the customized NeMo code base path.
+base_results_dir: /data/NemoTest/results  # Location to store the results, checkpoints and logs.
 container_mounts: # List of additional paths to mount to container. They will be mounted to same path.
   - null
-container: nvcr.io/ea-bignlp/nemofw-training:23.05-py3
+container: ccr.ccs.tencentyun.com/tke-llm/nemofw-training-with-tccl:23.05-py3
 
 wandb_api_key_file: null  # File where the w&B api key is stored. Key must be on the first line.
 
 env_vars:
-  NCCL_TOPO_FILE: null # Should be a path to an XML file describing the topology
-  UCX_IB_PCI_RELAXED_ORDERING: null # Needed to improve Azure performance
-  NCCL_IB_PCI_RELAXED_ORDERING: null # Needed to improve Azure performance
-  NCCL_IB_TIMEOUT: null # InfiniBand Verbs Timeout. Set to 22 for Azure
-  NCCL_DEBUG: null # Logging level for NCCL. Set to "INFO" for debug information
-  NCCL_PROTO: null # Protocol NCCL will use. Set to "simple" for AWS
+  NCCL_DEBUG: INFO
+  NCCL_SOCKET_IFNAME: eth0
+  NCCL_IB_GID_INDEX: 3
+  NCCL_IB_DISABLE: 0
+  NCCL_IB_HCA: mlx5_bond_0,mlx5_bond_1,mlx5_bond_2,mlx5_bond_3,mlx5_bond_4,mlx5_bond_5,mlx5_bond_6,mlx5_bond_7
+  NCCL_NET_GDR LEVEL: 2
+  NCCL_IB_OPS_PER_CONNECTION: 4
+  NCCL_IB_TC: 160
+  NCCL_IB_TIMEOUT: 22
+  NCCL_PXN_DISABLE: 0
+  TCCL_TOPO_AFFINITY: 4
   TRANSFORMERS_OFFLINE: 1
   NCCL_AVOID_RECORD_STREAMS: 1
   # LD_LIBRARY_PATH: /usr/local/lib/python3.8/dist-packages/torch/lib:/usr/local/lib/python3.8/dist-packages/torch_tensorrt/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64

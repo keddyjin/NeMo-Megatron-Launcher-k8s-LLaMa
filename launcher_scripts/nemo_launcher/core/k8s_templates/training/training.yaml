@@ -63,3 +63,13 @@ spec:
           - configMap:
               name: training-config
             name: training-config
+
+          nodeSelector:
+            Usage: NemoTest
+          tolerations:
+          - key: "Usage"
+            operator: "Exists"
+            effect: "NoSchedule"
+          - key: "node.kubernetes.io/unschedulable"
+            operator: "Exists"
+            effect: "NoSchedule"

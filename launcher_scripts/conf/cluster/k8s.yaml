@@ -1,6 +1,6 @@
-pull_secret: ngc-registry  # Kubernetes secret for the container registry to pull private containers.
+pull_secret: null # Kubernetes secret for the container registry to pull private containers.
 shm_size: 512Gi  # Amount of system memory to allocate in Pods. Should end in "Gi" for gigabytes.
-nfs_server: 10.0.0.49  # Hostname or IP address for the NFS server where data is stored.
-nfs_path: /egvejhj9  # Path to store data in the NFS server.
+nfs_server: 192.168.128.56  # Hostname or IP address for the NFS server where data is stored.
+nfs_path: /data/NemoTest  # Path to store data in the NFS server.
 ib_resource_name: "nvidia.com/hostdev"  # Specify the resource name for IB devices according to kubernetes, such as "nvidia.com/hostdev" for Mellanox IB adapters.
 ib_count: "0"  # Specify the number of IB devices to include per node in each pod.

@@ -5,7 +5,7 @@ run:
   dependency: "singleton"
 trainer:
   num_nodes: 2
-  devices: 2
+  devices: 8
   accelerator: gpu
   precision: 16
   logger: False # logger provided by exp_manager
